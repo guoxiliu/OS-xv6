@@ -56,3 +56,10 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+
+
+// Per-process information
+struct procinfo {
+	int pid;
+	char pname[20];
+};

@@ -89,3 +89,21 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// return the number of existing processes
+int
+sys_getprocsinfo(void)
+{
+	int flag = 1;		// whether to print out information 
+	struct procinfo procs[NPROC];
+	int procs_num = getprocsinfo(procs);
+	
+	// print out process names
+	if (flag) {
+		for (int i = 0; i < procs_num; i++) {
+			cprintf("%d: %s\n", procs[i].pid, procs[i].pname);
+		}
+	}
+
+	return procs_num;
+}

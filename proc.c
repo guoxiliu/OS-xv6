@@ -532,3 +532,25 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+
+// Returns the information of current running processes.
+int
+getprocsinfo(struct procinfo* info)
+{
+	int procnum = 0;
+	struct proc *p;
+	// loop through the process table
+	acquire(&ptable.lock);
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+		// skip unused process table
+		if (p->state == UNUSED)
+			continue;
+		// save the process id and name to custom struct
+		info->pid = p->pid;
+		safestrcpy(info->pname, p->name, sizeof(p->name));
+		info++; procnum++;
+	}
+	release(&ptable.lock);
+	return procnum;
+}
