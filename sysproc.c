@@ -107,3 +107,17 @@ sys_getprocsinfo(void)
 
 	return procs_num;
 }
+
+// 
+int 
+sys_shmem_access(void)
+{
+
+}
+
+//
+int
+sys_shmem_count(void)
+{
+  
+}

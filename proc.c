@@ -534,7 +534,7 @@ procdump(void)
 }
 
 
-// Returns the information of current running processes.
+// Return the information of current running processes.
 int
 getprocsinfo(struct procinfo* info)
 {
@@ -553,4 +553,19 @@ getprocsinfo(struct procinfo* info)
 	}
 	release(&ptable.lock);
 	return procnum;
+}
+
+
+// 
+void* 
+shmem_access(int page_number)
+{
+
+}
+
+
+// 
+int shmem_count(int page_number)
+{
+  
 }

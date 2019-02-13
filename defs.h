@@ -117,6 +117,8 @@ void            procdump(void);
 void            scheduler(void) __attribute__((noreturn));
 void            sched(void);
 void            setproc(struct proc*);
+void*           shmem_access(int);
+int             shmem_count(int);
 void            sleep(void*, struct spinlock*);
 void            userinit(void);
 int             wait(void);
@@ -187,6 +189,7 @@ void            switchuvm(struct proc*);
 void            switchkvm(void);
 int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
+void            shmeminit(void);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

@@ -10,6 +10,10 @@
 extern char data[];  // defined by kernel.ld
 pde_t *kpgdir;  // for use in scheduler()
 
+#define SHMEM_SIZE 4    // define the page size of shared memory
+int shmem_counts[SHMEM_SIZE];
+void *shmem_address[SHMEM_SIZE];
+
 // Set up CPU's kernel segment descriptors.
 // Run once on entry on each CPU.
 void
@@ -385,10 +389,15 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
   return 0;
 }
 
-//PAGEBREAK!
-// Blank page.
-//PAGEBREAK!
-// Blank page.
-//PAGEBREAK!
-// Blank page.
-
+// Initialize stuff related to shared memory.
+void
+shmeminit(void)
+{
+  for (int i = 0; i < SHMEM_SIZE; i++) {
+    shmem_counts[i] = 0;
+    // allocate shared memory space 
+    if ((shmem_address[i] = kalloc()) == 0) {
+      panic("shmeminit");
+    }
+  }
+}
