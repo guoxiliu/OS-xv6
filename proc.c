@@ -19,7 +19,6 @@ extern void forkret(void);
 extern void trapret(void);
 
 extern int shmem_counts[];
-extern void* shmem_address[];
 
 static void wakeup1(void *chan);
 
