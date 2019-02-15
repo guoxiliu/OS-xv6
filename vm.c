@@ -10,7 +10,6 @@
 extern char data[];  // defined by kernel.ld
 pde_t *kpgdir;  // for use in scheduler()
 
-#define SHMEM_SIZE 4    // define the page size of shared memory
 int shmem_counts[SHMEM_SIZE];
 void *shmem_address[SHMEM_SIZE];
 
@@ -228,7 +227,7 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   char *mem;
   uint a;
 
-  if(newsz >= KERNBASE)
+  if(newsz >= KERNBASE - SHMEM_SIZE * PGSIZE)
     return 0;
   if(newsz < oldsz)
     return oldsz;
@@ -288,10 +287,15 @@ void
 freevm(pde_t *pgdir)
 {
   uint i;
-
+  
   if(pgdir == 0)
     panic("freevm: no pgdir");
-  deallocuvm(pgdir, KERNBASE, 0);
+
+  // deallocuvm(pgdir, KERNBASE, 0);
+
+  // Only deallocate non-shared memory
+  deallocuvm(pgdir, (KERNBASE - SHMEM_SIZE * PGSIZE), 0);
+
   for(i = 0; i < NPDENTRIES; i++){
     if(pgdir[i] & PTE_P){
       char * v = P2V(PTE_ADDR(pgdir[i]));
@@ -317,15 +321,18 @@ clearpteu(pde_t *pgdir, char *uva)
 // Given a parent process's page table, create a copy
 // of it for a child.
 pde_t*
-copyuvm(pde_t *pgdir, uint sz)
+copyuvm(pde_t *pgdir, uint sz, struct proc *p)
 {
   pde_t *d;
   pte_t *pte;
   uint pa, i, flags;
   char *mem;
+  struct proc *curproc = myproc();
 
   if((d = setupkvm()) == 0)
     return 0;
+
+  // Start at PGSIZE instead of 0.
   for(i = PGSIZE; i < sz; i += PGSIZE){
     if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)
       panic("copyuvm: pte should exist");
@@ -341,6 +348,19 @@ copyuvm(pde_t *pgdir, uint sz)
       goto bad;
     }
   }
+
+  // Increment the counter for shared pages, cause now we have a new process.
+  for(i = 0; i < SHMEM_SIZE; ++i) {
+    if(curproc->shmems[i]) {
+      p->shmems[i] = curproc->shmems[i];
+      // // We need to remap the virtual address to the physical memory.
+      if(mappages(d, (void*) (KERNBASE - (i+1)*PGSIZE), PGSIZE, V2P(shmem_address[i]), PTE_W|PTE_U) < 0)
+        goto bad;
+      shmem_counts[i]++;
+    }
+  }
+  p->shmem_count = curproc->shmem_count;
+
   return d;
 
 bad:
@@ -399,5 +419,52 @@ shmeminit(void)
     if ((shmem_address[i] = kalloc()) == 0) {
       panic("shmeminit");
     }
+    // initialize the value to be 0
+    memset(shmem_address[i], 0, PGSIZE);
   }
+}
+
+// Grant process the access to a specific shared page.
+void* 
+shmem_access(int page_number)
+{
+  // Check if the page number is valid.
+  if (page_number < 0 || page_number >= SHMEM_SIZE) {
+    return (void*) -1;
+  }
+  struct proc* curproc = myproc();
+  // Check if already allocated the memory for the given page number.
+  if (curproc->shmems[page_number] != 0) {
+    return (void*) (curproc->shmems[page_number]);
+  }
+
+  // cprintf("pid %d shmem_count: %d\n", curproc->shmem_count);
+
+  void* va = (void*) (KERNBASE - (page_number+1) * PGSIZE);
+  if (curproc->sz >= V2P(va)) {
+    return (void*) -1;
+  }
+
+  if (mappages(curproc->pgdir, va, PGSIZE, V2P(shmem_address[page_number]), PTE_W|PTE_U) < 0) {
+    panic("shmem_access");
+  }
+
+  curproc->shmem_count++;
+  shmem_counts[page_number]++;
+  curproc->shmems[page_number] = va;
+  // cprintf("shared memeory address: %x, %x, %x, %x\n", shmem_address[0], shmem_address[1], shmem_address[2], shmem_address[3]);
+  // cprintf("pid %d, psz: %d, virtual address: %x, shmem_count: %d \n", curproc->pid, curproc->sz, (uint) va, curproc->shmem_count);
+
+  return va;
+}
+
+// Return a counter for a given shared page number.
+int 
+shmem_count(int page_number)
+{
+  // Check if the page number is valid.
+  if (page_number < 0 || page_number >= SHMEM_SIZE) {
+    return -1;
+  } 
+  return shmem_counts[page_number];
 }

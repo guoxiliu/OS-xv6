@@ -1,3 +1,7 @@
+/**
+ * NULL Pointer Dereference Test
+ * 		Guoxi Liu
+ */ 
 #include "syscall.h"
 #include "types.h"
 #include "user.h"

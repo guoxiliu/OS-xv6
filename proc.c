@@ -18,6 +18,9 @@ int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
 
+extern int shmem_counts[];
+extern void* shmem_address[];
+
 static void wakeup1(void *chan);
 
 void
@@ -190,7 +193,7 @@ fork(void)
   }
 
   // Copy process state from proc.
-  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz, np)) == 0){
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
@@ -213,9 +216,7 @@ fork(void)
   pid = np->pid;
 
   acquire(&ptable.lock);
-
   np->state = RUNNABLE;
-
   release(&ptable.lock);
 
   return pid;
@@ -285,6 +286,12 @@ wait(void)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
+        // Decrement the counter for shared pages.
+        for (int i = 0; i < SHMEM_SIZE; i++) {
+          if (p->shmems[i]) {
+            shmem_counts[i]--;
+          }
+        }
         // Found one.
         pid = p->pid;
         kfree(p->kstack);
@@ -553,19 +560,4 @@ getprocsinfo(struct procinfo* info)
 	}
 	release(&ptable.lock);
 	return procnum;
-}
-
-
-// 
-void* 
-shmem_access(int page_number)
-{
-
-}
-
-
-// 
-int shmem_count(int page_number)
-{
-  
 }

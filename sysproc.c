@@ -108,16 +108,24 @@ sys_getprocsinfo(void)
 	return procs_num;
 }
 
-// 
+// return the virtual address space of a shared page
 int 
 sys_shmem_access(void)
 {
-
+  int page_num;
+  if (argint(0, &page_num) < 0) {
+    return -1;
+  }
+  return (int)shmem_access(page_num);
 }
 
-//
+// return the number of processes that have access to a shared page
 int
 sys_shmem_count(void)
 {
-  
+  int page_num;
+  if (argint(0, &page_num) < 0) {
+    return -1;
+  } 
+  return shmem_count(page_num);
 }
