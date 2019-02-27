@@ -10,7 +10,7 @@ main(int argc, char * argv[])
 {
     printf(1, "Test accessing shared page 3\n");
     int* ptr1 = (int*) shmem_access(3);
-    printf(1, "0x%x: %d [expected = 0x7FFFF000: 0]\n", ptr1, *ptr1);
+    printf(1, "0x%x: %d [expected = 0x7FFFC000: 0]\n", ptr1, *ptr1);
 	
 	printf(1, "\nTest accessing shared page 1\n");	
 	int* ptr2 = (int*) shmem_access(1);
@@ -19,7 +19,7 @@ main(int argc, char * argv[])
 	
 	printf(1, "\nTest accessing shared page 3\n");
 	int* ptr3 = (int*) shmem_access(3);
-	printf(1, "0x%x: %d [expected = 0x7FFFF000: 0]\n", ptr3, *ptr3);
+	printf(1, "0x%x: %d [expected = 0x7FFFC000: 0]\n", ptr3, *ptr3);
 
 	printf(1, "\nTest accessing invalid shared page 4\n");
 	int* ptr4 = (int*) shmem_access(4);
