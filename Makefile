@@ -168,6 +168,7 @@ mkfs: mkfs.c fs.h
 UPROGS=\
 	_cat\
 	_echo\
+	_elite\
 	_forktest\
 	_grep\
 	_init\
@@ -177,6 +178,7 @@ UPROGS=\
 	_mkdir\
 	_rm\
 	_sh\
+	_shmem_test\
 	_stressfs\
 	_usertests\
 	_testgetprocsinfo\
@@ -252,9 +254,9 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # check in that version.
 
 EXTRA=\
-	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
-	ln.c ls.c mkdir.c rm.c stressfs.c testgetprocsinfo.c testnull.c\
-	testshmem.c usertests.c wc.c zombie.c printf.c umalloc.c\
+	mkfs.c ulib.c user.h cat.c echo.c elite.c forktest.c grep.c kill.c\
+	ln.c ls.c mkdir.c rm.c shmem_test.c stressfs.c testgetprocsinfo.c\
+	testnull.c testshmem.c usertests.c wc.c zombie.c printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 	$(CL_EXTRA)\

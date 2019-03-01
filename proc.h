@@ -49,7 +49,6 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  int shmem_count;             // The number of shared pages 
   void *shmems[4];             // Virtual addresses of shared pages
 };
 

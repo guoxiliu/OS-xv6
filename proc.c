@@ -192,7 +192,7 @@ fork(void)
   }
 
   // Copy process state from proc.
-  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz, np)) == 0){
+  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz, np, curproc)) == 0){
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
@@ -288,6 +288,7 @@ wait(void)
         // Decrement the counter for shared pages.
         for (int i = 0; i < SHMEM_SIZE; i++) {
           if (p->shmems[i]) {
+            p->shmems[i] = 0;
             shmem_counts[i]--;
           }
         }

@@ -87,6 +87,12 @@ exec(char *path, char **argv)
   if(copyout(pgdir, sp, ustack, (3+argc+1)*4) < 0)
     goto bad;
 
+  // Initialize the shared page information.
+  for (int i = 0; i < SHMEM_SIZE; i++) {
+    curproc->shmems[i] = 0;
+  }
+  
+
   // Save program name for debugging.
   for(last=s=path; *s; s++)
     if(*s == '/')

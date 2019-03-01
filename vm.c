@@ -321,13 +321,12 @@ clearpteu(pde_t *pgdir, char *uva)
 // Given a parent process's page table, create a copy
 // of it for a child.
 pde_t*
-copyuvm(pde_t *pgdir, uint sz, struct proc *p)
+copyuvm(pde_t *pgdir, uint sz, struct proc *child, struct proc *parent)
 {
   pde_t *d;
   pte_t *pte;
   uint pa, i, flags;
   char *mem;
-  struct proc *curproc = myproc();
 
   if((d = setupkvm()) == 0)
     return 0;
@@ -351,15 +350,14 @@ copyuvm(pde_t *pgdir, uint sz, struct proc *p)
 
   // Increment the counter for shared pages, cause now we have a new process.
   for(i = 0; i < SHMEM_SIZE; ++i) {
-    if(curproc->shmems[i]) {
-      p->shmems[i] = curproc->shmems[i];
-      // // We need to remap the virtual address to the physical memory.
-      if(mappages(d, (void*) (KERNBASE - (i+1)*PGSIZE), PGSIZE, V2P(shmem_address[i]), PTE_W|PTE_U) < 0)
+    if(parent->shmems[i]) {
+      child->shmems[i] = parent->shmems[i];
+      // We need to remap the virtual address to the physical memory.
+      if(mappages(d, child->shmems[i], PGSIZE, V2P(shmem_address[i]), PTE_W|PTE_U) < 0)
         goto bad;
       shmem_counts[i]++;
     }
   }
-  p->shmem_count = curproc->shmem_count;
 
   return d;
 
@@ -449,7 +447,6 @@ shmem_access(int page_number)
     panic("shmem_access");
   }
 
-  curproc->shmem_count++;
   shmem_counts[page_number]++;
   curproc->shmems[page_number] = va;
   // cprintf("shared memeory address: %x, %x, %x, %x\n", shmem_address[0], shmem_address[1], shmem_address[2], shmem_address[3]);
