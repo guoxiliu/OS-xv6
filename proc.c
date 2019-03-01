@@ -561,3 +561,19 @@ getprocsinfo(struct procinfo* info)
 	release(&ptable.lock);
 	return procnum;
 }
+
+// Clone a new thread from the current running process.
+// Return -1 if the thread cannot be created.
+int
+clone(void(*fcn)(void*), void* arg, void* stack)
+{
+  return 0;
+}
+
+// Join with the child thread specified by the pid and return 0.
+// Return -1 if the given child thread cannot be found.
+int
+join(int pid)
+{
+  return 0;
+}

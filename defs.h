@@ -104,11 +104,13 @@ int             pipewrite(struct pipe*, char*, int);
 
 //PAGEBREAK: 16
 // proc.c
+int             clone(void (*func)(void*), void*, void*);
 int             cpuid(void);
 void            exit(void);
 int             fork(void);
 int             growproc(int);
 int 			getprocsinfo(struct procinfo*);
+int             join(int);
 int             kill(int);
 struct cpu*     mycpu(void);
 struct proc*    myproc();
