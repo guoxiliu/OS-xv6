@@ -26,6 +26,8 @@ int uptime(void);
 int getprocsinfo(void);
 void* shmem_access(int);
 int shmem_count(int);
+int clone(void(*fcn)(void*), void*, void*);
+int join(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
