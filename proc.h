@@ -50,6 +50,7 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   void *shmems[4];             // Virtual addresses of shared pages
+  int is_thread;               // Whether is thread or not
 };
 
 // Process memory is laid out contiguously, low addresses first:
